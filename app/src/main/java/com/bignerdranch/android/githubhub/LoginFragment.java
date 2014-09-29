@@ -1,5 +1,6 @@
 package com.bignerdranch.android.githubhub;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -15,6 +16,7 @@ import com.bignerdranch.android.githubhub.utils.TextUtils;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
+import butterknife.OnEditorAction;
 
 public class LoginFragment extends Fragment {
 
@@ -31,8 +33,23 @@ public class LoginFragment extends Fragment {
         return layout;
     }
 
+    @OnEditorAction(R.id.username)
+    public boolean usernameOnEditorAction() {
+        return passwordTextView.requestFocus();
+    }
+
+    @OnEditorAction(R.id.password)
+    public boolean passwordOnEditorAction() {
+        signin();
+        return true;
+    }
+
     @OnClick({R.id.signin})
-    public void signin() {
+    public void signinOnClick() {
+        signin();
+    }
+
+    private void signin() {
         new LoginAsyncTask().execute();
     }
 
@@ -58,12 +75,14 @@ public class LoginFragment extends Fragment {
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
             if (loginSucceeded) {
-                Toast.makeText(getActivity(), getString(R.string.login_success), Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getActivity(), MainActivity.class);
+                startActivity(intent);
+                getActivity().finish();
             } else {
                 Toast.makeText(getActivity(), getString(R.string.login_failure), Toast.LENGTH_SHORT).show();
             }
         }
 
-    };
+    }
 
 }
