@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,12 @@ import android.widget.Toast;
 
 import com.bignerdranch.android.githubhub.utils.TextUtils;
 
+import org.eclipse.egit.github.core.Repository;
+import org.eclipse.egit.github.core.client.GitHubClient;
+import org.eclipse.egit.github.core.service.RepositoryService;
+
+import java.io.IOException;
+
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
@@ -21,6 +28,7 @@ import butterknife.OnEditorAction;
 public class LoginFragment extends Fragment {
 
     private static final String TAG = LoginFragment.class.getSimpleName();
+    private static final String BNR_ORG_NAME = "bignerdranch";
 
     @InjectView(R.id.username) TextView usernameTextView;
     @InjectView(R.id.password) TextView passwordTextView;
@@ -66,7 +74,17 @@ public class LoginFragment extends Fragment {
                 return null;
             }
 
-            // todo - login
+            GitHubClient gitHubClient = new GitHubClient();
+            gitHubClient.setCredentials(username, password);
+
+            RepositoryService repositoryService = new RepositoryService();
+            try {
+                for(Repository repo : repositoryService.getOrgRepositories(BNR_ORG_NAME)) {
+                    Log.d(TAG, repo.getName());
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
             return null;
         }
