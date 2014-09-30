@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,12 +13,7 @@ import android.widget.Toast;
 
 import com.bignerdranch.android.githubhub.utils.DialogUtils;
 import com.bignerdranch.android.githubhub.utils.TextUtils;
-
-import org.eclipse.egit.github.core.Repository;
-import org.eclipse.egit.github.core.client.GitHubClient;
-import org.eclipse.egit.github.core.service.RepositoryService;
-
-import java.io.IOException;
+import com.bignerdranch.android.githubhub.utils.ThreadUtils;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -29,9 +23,9 @@ import butterknife.OnEditorAction;
 public class LoginFragment extends Fragment {
 
     private static final String TAG = LoginFragment.class.getSimpleName();
-    private static final String BNR_ORG_NAME = "bignerdranch";
 
-    private GitHubClient mGitHubClient;
+    public static final String EXTRA_USERNAME = TAG + ".username";
+    public static final String EXTRA_PASSWORD = TAG + ".password";
 
     @InjectView(R.id.username) TextView usernameTextView;
     @InjectView(R.id.password) TextView passwordTextView;
@@ -41,8 +35,6 @@ public class LoginFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View layout = inflater.inflate(R.layout.fragment_login, container, false);
         ButterKnife.inject(this, layout);
-
-        mGitHubClient = new GitHubClient();
         return layout;
     }
 
@@ -68,6 +60,9 @@ public class LoginFragment extends Fragment {
 
     private class LoginAsyncTask extends AsyncTask<Void, Void, Void> {
 
+        private String username;
+        private String password;
+
         private boolean loginSucceeded = true;
 
         @Override
@@ -78,33 +73,13 @@ public class LoginFragment extends Fragment {
 
         @Override
         protected Void doInBackground(Void... params) {
-            // I am a monster. I am so sorry.
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                Log.e(TAG, e.toString());
-            }
-
-            // Extract credentials
-            String username = usernameTextView.getText().toString();
-            String password = passwordTextView.getText().toString();
+            ThreadUtils.pause(1000);
+            username = usernameTextView.getText().toString();
+            password = passwordTextView.getText().toString();
             if (TextUtils.isEmpty(username) || TextUtils.isEmpty(password)) {
                 loginSucceeded = false;
                 return null;
             }
-
-            GitHubClient gitHubClient = new GitHubClient();
-            gitHubClient.setCredentials(username, password);
-
-            RepositoryService repositoryService = new RepositoryService();
-            try {
-                for(Repository repo : repositoryService.getOrgRepositories(BNR_ORG_NAME)) {
-                    Log.d(TAG, repo.getName());
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
             return null;
         }
 
@@ -114,6 +89,8 @@ public class LoginFragment extends Fragment {
             DialogUtils.hideLoadingDialog(getActivity().getSupportFragmentManager());
             if (loginSucceeded) {
                 Intent intent = new Intent(getActivity(), MainActivity.class);
+                intent.putExtra(EXTRA_USERNAME, username);
+                intent.putExtra(EXTRA_PASSWORD, password);
                 startActivity(intent);
                 getActivity().finish();
             } else {

@@ -6,6 +6,7 @@
     <string name="password">Password</string>
     <string name="signin">Sign In</string>
     <string name="logout">Log Out</string>
+    <string name="refresh">Refresh</string>
 
     <string name="login_success">Login succeeded!</string>
     <string name="login_failure">Login failed.</string>
