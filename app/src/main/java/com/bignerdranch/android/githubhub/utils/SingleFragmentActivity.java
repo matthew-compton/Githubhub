@@ -1,9 +1,11 @@
-package com.bignerdranch.android.githubhub;
+package com.bignerdranch.android.githubhub.utils;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+
+import com.bignerdranch.android.githubhub.R;
 
 public abstract class SingleFragmentActivity extends FragmentActivity {
 
