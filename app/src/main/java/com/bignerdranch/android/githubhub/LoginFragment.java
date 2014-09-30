@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,7 +12,10 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bignerdranch.android.githubhub.utils.DialogUtils;
 import com.bignerdranch.android.githubhub.utils.TextUtils;
+
+import org.eclipse.egit.github.core.client.GitHubClient;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -22,6 +26,8 @@ public class LoginFragment extends Fragment {
 
     private static final String TAG = LoginFragment.class.getSimpleName();
 
+    private GitHubClient mGitHubClient;
+
     @InjectView(R.id.username) TextView usernameTextView;
     @InjectView(R.id.password) TextView passwordTextView;
     @InjectView(R.id.signin) Button signinButton;
@@ -30,6 +36,8 @@ public class LoginFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View layout = inflater.inflate(R.layout.fragment_login, container, false);
         ButterKnife.inject(this, layout);
+
+        mGitHubClient = new GitHubClient();
         return layout;
     }
 
@@ -58,7 +66,21 @@ public class LoginFragment extends Fragment {
         private boolean loginSucceeded = true;
 
         @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            DialogUtils.showLoadingDialog(getActivity().getSupportFragmentManager(), false);
+        }
+
+        @Override
         protected Void doInBackground(Void... params) {
+            // I am a monster. I am so sorry.
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                Log.e(TAG, e.toString());
+            }
+
+            // Extract credentials
             String username = usernameTextView.getText().toString();
             String password = passwordTextView.getText().toString();
             if (TextUtils.isEmpty(username) || TextUtils.isEmpty(password)) {
@@ -66,14 +88,15 @@ public class LoginFragment extends Fragment {
                 return null;
             }
 
-            // todo - login
-
+            // Set credentials
+            mGitHubClient.setCredentials(username, password);
             return null;
         }
 
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
+            DialogUtils.hideLoadingDialog(getActivity().getSupportFragmentManager());
             if (loginSucceeded) {
                 Intent intent = new Intent(getActivity(), MainActivity.class);
                 startActivity(intent);
@@ -81,6 +104,7 @@ public class LoginFragment extends Fragment {
             } else {
                 Toast.makeText(getActivity(), getString(R.string.login_failure), Toast.LENGTH_SHORT).show();
             }
+
         }
 
     }

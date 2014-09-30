@@ -4,4 +4,6 @@
     <color name="gray">#CCCCCC</color>
     <color name="gray_dark">#99000000</color>
 
+    <color name="translucent_white">#b2FFFFFF</color>
+
 </resources>
